@@ -1,4 +1,6 @@
 __pycache__
+ui_tests/__pycache__
+api_tests/__pycache__
 __deb_dist
 __*logs
 __dist*
