@@ -23,4 +23,4 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 
 # Команда по умолчанию для запуска тестов
-CMD ["pytest", "--alluredir=/allure-results"]
+CMD ["pytest"]

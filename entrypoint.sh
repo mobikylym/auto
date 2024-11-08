@@ -1,13 +1,15 @@
 #!/bin/bash
 
 # Ссылка на репозиторий по умолчанию
-REPO_URL="${REPO_URL:-https://default-repo-url.git}"
+REPO_URL="${REPO_URL:-https://github.com/mobikylym/auto.git}"
 
 # Проверяем, пустая ли директория /project
 if [ -z "$(ls -A /project)" ]; then
     echo "Cloning project repository from $REPO_URL..."
     git clone "$REPO_URL" /project
 fi
+
+ls -la /project
 
 # Проверяем, установлены ли зависимости
 if [ ! -f "/opt/venv/bin/pytest" ]; then
