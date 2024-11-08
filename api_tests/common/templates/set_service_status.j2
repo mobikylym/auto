@@ -1,0 +1,69 @@
+$serviceName = "{{ service_name }}"
+$action = "{{ action }}"
+$timeout = {{ timeout }}
+$userName = "{{ user_name }}"
+$groupName = "{{ group_name }}"
+
+$service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+if ($null -eq $service) {
+    Write-Output "Service '$serviceName' not found."
+    exit 1
+}
+
+{% if service_name == "slave" %}
+$user = Get-LocalUser -Name $userName -ErrorAction SilentlyContinue
+if ($null -eq $user) {
+    Write-Output "User $userName not found."
+    exit 1
+}
+
+$isMember = Get-LocalGroupMember -Group $groupName -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match "$env:COMPUTERNAME\\$userName|$userName" }
+
+if ($isMember.Count -eq 0) {
+    try {
+        Add-LocalGroupMember -Group $groupName -Member $userName
+    } catch [Microsoft.PowerShell.Commands.MemberExistsException] {
+    } catch {
+        Write-Output "An error occurred while adding user $userName to the $groupName group: $_"
+        exit 1
+    }
+}
+{% endif %}
+
+$serviceStatus = $service.Status
+
+switch ($action) {
+    "start" {
+        if ($serviceStatus -ne "Running") {
+            Start-Service -Name $serviceName
+            Start-Sleep -Seconds $timeout
+            $service = Get-Service -Name $serviceName
+            if ($service.Status -ne "Running") {
+                Write-Output "Failed to start service '$serviceName'."
+                exit 1
+            }
+        }
+    }
+    "restart" {
+        Restart-Service -Name $serviceName
+        Start-Sleep -Seconds $timeout
+        $service = Get-Service -Name $serviceName
+        if ($service.Status -ne "Running") {
+            Write-Output "Failed to restart service '$serviceName'."
+            exit 1
+        }
+    }
+    "stop" {
+        if ($serviceStatus -ne "Stopped") {
+            Stop-Service -Name $serviceName
+            Start-Sleep -Seconds $timeout
+            $service = Get-Service -Name $serviceName
+            if ($service.Status -ne "Stopped") {
+                Write-Output "Failed to stop service '$serviceName'."
+                exit 1
+            }
+        }
+    }
+}

@@ -1,0 +1,20 @@
+$propName = "{{ prop_name }}"
+$propType = "{{ prop_type }}"
+$propValueStr = "{{ prop_value_str }}"
+$fullPath = "{{ full_path }}"
+
+if (-not (Get-Item -Path $fullPath -ErrorAction SilentlyContinue)) {
+    New-Item -Path $fullPath -Force | Out-Null
+}
+
+if ($propType -eq "Binary") {
+    $bytes = $propValueStr -split "," | ForEach-Object {[byte]$_}
+    New-ItemProperty -Path $fullPath -Name $propName -Value $bytes -PropertyType Binary -Force
+} elseif ($propType -eq "MultiString") {
+    $multiStr = ($propValueStr -split ",") | ForEach-Object { $_.Trim("'") }
+    New-ItemProperty -Path $fullPath -Name $propName -Value $multiStr -PropertyType MultiString -Force
+} elseif ($propType -eq "DWORD" -or $propType -eq "QWORD") {
+    New-ItemProperty -Path $fullPath -Name $propName -Value ([int64]$propValueStr.Trim("'")) -PropertyType $propType -Force
+} else {
+    New-ItemProperty -Path $fullPath -Name $propName -Value $propValueStr.Trim("'") -PropertyType $propType -Force
+}

@@ -1,0 +1,21 @@
+$propName = "{{ prop_name }}"
+$fullPath = "{{ full_path }}"
+
+$item = Get-Item -Path $fullPath -ErrorAction SilentlyContinue
+
+if ($item -eq $null) {
+    $true
+} else {
+    $prop = Get-ItemProperty -Path $fullPath -Name $propName -ErrorAction SilentlyContinue
+    if ($prop -eq $null) {
+        $true
+    } else {
+        Remove-ItemProperty -Path $fullPath -Name $propName -ErrorAction SilentlyContinue
+        $prop = Get-ItemProperty -Path $fullPath -Name $propName -ErrorAction SilentlyContinue
+        if ($prop -eq $null) {
+            $true
+        } else {
+            $false
+        }
+    }
+}

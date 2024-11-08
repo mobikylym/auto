@@ -1,0 +1,57 @@
+$propName = "{{ prop_name }}"
+$propType = "{{ prop_type }}"
+$propValueStr = "{{ prop_value_str }}"
+$propValueLength = "{{ prop_value_length }}"
+$fullPath = "{{ full_path }}"
+
+$prop = Get-Item -Path $fullPath -ErrorAction SilentlyContinue
+if ($prop -ne $null) {
+    $propValue = $prop.GetValue($propName, $null)
+    $propType = $prop.GetValueKind($propName)
+
+    if ($propValue -eq $null) {
+        $false
+    } else {
+        if ($propType -eq $propType) {
+            if ($propType -eq "Binary") {
+                if ($propValue.Length -eq $propValueLength) {
+                    $match = $true
+                    $expectedBytes = $propValueStr -split ","
+                    for ($i = 0; $i -lt $propValue.Length; $i++) {
+                        if ($propValue[$i] -ne [byte]$expectedBytes[$i]) {
+                            $match = $false
+                            break
+                        }
+                    }
+                    $match
+                } else {
+                    $false
+                }
+            } elseif ($propType -eq "MultiString") {
+                $expectedStrings = $propValueStr -split ","
+                if ($expectedStrings.Length -eq $propValue.Length) {
+                    $match = $true
+                    for ($i = 0; $i -lt $expectedStrings.Length; $i++) {
+                        if ($propValue[$i] -ne $expectedStrings[$i].Trim("'")) {
+                            $match = $false
+                            break
+                        }
+                    }
+                    $match
+                } else {
+                    $false
+                }
+            } else {
+                if ($propValue -eq $propValueStr) {
+                    $true
+                } else {
+                    $false
+                }
+            }
+        } else {
+            $false
+        }
+    }
+} else {
+    $false
+}

@@ -1,0 +1,18 @@
+linux:
+  username: "xello"
+  password: "xello_root"
+  root_password: "xello_root"
+#  config_file_path: "/opt/xello/external.yml"
+win:
+  username: "Administrator"
+  password: "Logaribe2*"
+  registry_prefix: "HKLM:\\SOFTWARE\\WOW6432Node\\"
+#  config_file_path: "C:/Program Files (x86)/Xello/SlaveServer/external.yml"
+mgmt:
+  server: "172.16.5.120"
+  username: "admin"
+  password: "admin"
+slave:
+  username: "admin"
+  password: "admin"
+#win_realos_default_logs_path: "C:/Program Files (x86)/Xello Software/Xello Trap Server/logs"
